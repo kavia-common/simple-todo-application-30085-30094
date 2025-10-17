@@ -5,6 +5,11 @@ import React from 'react';
  * TodoItem represents a single todo row with actions.
  */
 export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
+  const handleDelete = () => {
+    // Optimistic delete trigger via parent handler
+    onDelete(todo.id);
+  };
+
   return (
     <div className={`item ${todo.completed ? 'completed' : ''}`}>
       <input
@@ -21,11 +26,21 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
         {todo.notes ? <p className="item-notes">{todo.notes}</p> : null}
       </div>
       <div className="item-actions">
-        <button className="btn btn-ghost" onClick={() => onEdit(todo.id)} aria-label={`Edit ${todo.title}`}>
+        <button
+          className="btn btn-ghost"
+          onClick={() => onEdit(todo.id)}
+          aria-label={`Edit ${todo.title}`}
+          title={`Edit "${todo.title}"`}
+        >
           Edit
         </button>
-        <button className="btn btn-secondary" onClick={() => onDelete(todo.id)} aria-label={`Delete ${todo.title}`}>
-          Delete
+        <button
+          className="btn btn-secondary"
+          onClick={handleDelete}
+          aria-label={`Delete ${todo.title}`}
+          title={`Delete "${todo.title}"`}
+        >
+          🗑️ Delete
         </button>
       </div>
     </div>

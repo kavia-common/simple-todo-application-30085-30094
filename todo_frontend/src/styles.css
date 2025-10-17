@@ -269,6 +269,9 @@ body {
 .item-actions .btn {
   padding: 8px 10px;
   font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Empty state */

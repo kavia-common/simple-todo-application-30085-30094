@@ -79,9 +79,40 @@ function App() {
 
   // PUBLIC_INTERFACE
   const deleteTodo = (id) => {
-    /** Remove a todo by id. */
-    setTodos(prev => prev.filter(t => t.id !== id));
+    /** Remove a todo by id with optimistic UI update and localStorage persistence. */
+    setTodos(prev => {
+      const next = prev.filter(t => t.id !== id);
+      return next;
+    });
+
     if (editingId === id) setEditingId(null);
+
+    // Try to persist to localStorage and revert if it fails
+    try {
+      const next = (todos || []).filter(t => t.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch (e) {
+      // Revert UI and notify user
+      setTodos(prev => {
+        // If we previously removed, re-add from latest persisted or from in-memory fallback
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+          }
+        } catch {
+          // ignore parse errors
+        }
+        // Fallback: re-insert item if we can find it in current closure scope
+        const removed = (todos || []).find(t => t.id === id);
+        if (removed) return [removed, ...prev];
+        return prev;
+      });
+      // Basic error message, minimal intrusive
+      // eslint-disable-next-line no-alert
+      alert('Failed to delete the todo due to a storage error. Please try again.');
+    }
   };
 
   // PUBLIC_INTERFACE
